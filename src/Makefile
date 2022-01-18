@@ -34,7 +34,14 @@ VOSK_HEADERS= \
 	vosk_api.h \
         postprocessor.h
 
-CFLAGS=-g -O3 -std=c++17 -Wno-deprecated-declarations -fPIC -DFST_NO_DYNAMIC_LINKING -I. -I$(KALDI_ROOT)/src -I$(OPENFST_ROOT)/include $(EXTRA_CFLAGS)
+CFLAGS=-g -O3 -std=c++17 \
+       -Wno-deprecated-declarations -fPIC \
+       -DFST_NO_DYNAMIC_LINKING \
+       -fvisibility=default \
+	-I. \
+       -I$(KALDI_ROOT)/include/kaldi \
+       -I$(KALDI_ROOT)/include/ \
+       -I$(OPENFST_ROOT)/include $(EXTRA_CFLAGS)
 
 LDFLAGS=
 
@@ -107,10 +114,15 @@ endif
 all: $(OUTDIR)/libvosk.$(EXT)
 
 $(OUTDIR)/libvosk.$(EXT): $(VOSK_SOURCES:%.cc=$(OUTDIR)/%.o) $(LIBS)
-	$(CXX) --shared -s -o $@ $^ $(LDFLAGS) $(EXTRA_LDFLAGS)
+	$(CXX) -g -shared -o $@ $^ $(LDFLAGS) $(EXTRA_LDFLAGS)
 
 $(OUTDIR)/%.o: %.cc $(VOSK_HEADERS)
 	$(CXX) $(CFLAGS) -c -o $@ $<
+
+install:
+	install -Dm755 libvosk.so $(PREFIX)/lib/libvosk.so
+	mkdir -p $(PREFIX)/include/libvosk/
+	cp -v *.h $(PREFIX)/include/libvosk/
 
 clean:
 	rm -f *.o *.so *.dll

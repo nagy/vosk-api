@@ -20,19 +20,8 @@ MODEL_DIRS = [os.getenv("VOSK_MODEL_PATH"), Path("/usr/share/vosk"),
         Path.home() / "AppData/Local/vosk", Path.home() / ".cache/vosk"]
 
 def open_dll():
-    dlldir = os.path.abspath(os.path.dirname(__file__))
-    if sys.platform == "win32":
-        # We want to load dependencies too
-        os.environ["PATH"] = dlldir + os.pathsep + os.environ["PATH"]
-        if hasattr(os, "add_dll_directory"):
-            os.add_dll_directory(dlldir)
-        return _ffi.dlopen(os.path.join(dlldir, "libvosk.dll"))
-    elif sys.platform == "linux":
-        return _ffi.dlopen(os.path.join(dlldir, "libvosk.so"))
-    elif sys.platform == "darwin":
-        return _ffi.dlopen(os.path.join(dlldir, "libvosk.dyld"))
-    else:
-        raise TypeError("Unsupported platform")
+    return _ffi.dlopen("libvosk.so")
+
 
 _c = open_dll()
 
